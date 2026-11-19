@@ -322,8 +322,40 @@ if uploaded_file is not None:
                     int(counts.get("Neutral", 0))
                 )
 
-                st.subheader("Sentiment Distribution")
-                st.bar_chart(counts)
+                
+# Sentiment composition
+st.subheader("Sentiment Overview")
+
+total = len(results)
+
+positive_pct = counts.get("Positive", 0) / total * 100
+negative_pct = counts.get("Negative", 0) / total * 100
+neutral_pct = counts.get("Neutral", 0) / total * 100
+
+st.markdown(
+    f"""
+    <div style="
+        display:flex;
+        height:16px;
+        border-radius:12px;
+        overflow:hidden;
+        background:#E5E7EB;
+        margin:16px 0 12px 0;
+    ">
+        <div style="width:{positive_pct}%;background:#087F65;"></div>
+        <div style="width:{negative_pct}%;background:#D94F4F;"></div>
+        <div style="width:{neutral_pct}%;background:#D6A340;"></div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+p1, p2, p3 = st.columns(3)
+
+p1.caption(f"🟢 Positive: {positive_pct:.1f}%")
+p2.caption(f"🔴 Negative: {negative_pct:.1f}%")
+p3.caption(f"🟡 Neutral: {neutral_pct:.1f}%")
+
 
                 st.subheader("Analysis Results")
                 st.dataframe(
