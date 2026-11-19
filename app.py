@@ -176,4 +176,4 @@ with tab_about:
     st.dataframe(pd.DataFrame({"Dataset": ["BLUGE test", "BECS external", "Mendeley external"], "Accuracy": ["76.19%", "54.80%", "62.45%"], "Macro F1": ["76.21%", "53.52%", "52.96%"]}), hide_index=True, use_container_width=True)
     st.info("Predictions can be incorrect, especially for ambiguous or neutral reviews. External dataset performance is lower than the BLUGE test result. Treat output as a screening aid, not a definitive judgment.")
 
-st.markdown('<div class="footer"><div class="logo">বাংলা<span style="color:#F0C58A">AI</span></div><div class="tag">Rooted in Bangla. Built for the World.</div><div class="credit">Designed &amp; Developed by ASAD MD</div><div class="copy">© 2026 BanglaAI</div></div>', unsafe_allow_html=True)
+st.markdown('<div class="footer"><div class="logo">বাংলা<span style="color:#F0C58A">AI</span></div><div class="credit">Designed &amp; Developed by ASAD MD</div><div class="copy">© 2026 BanglaAI</div></div>', unsafe_allow_html=True)
