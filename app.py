@@ -32,9 +32,18 @@ user_text = st.text_area(
 if st.button("Predict Sentiment", type="primary"):
 
     if user_text.strip():
+    # Predict sentiment
+    prediction = model.predict([user_text])[0]
 
-        # Predict sentiment
-        prediction = model.predict([user_text])[0]
+    # Convert numeric prediction into sentiment label
+    sentiment_labels = {
+        0: "Neutral",
+        1: "Positive",
+        2: "Negative"
+    }
+
+    sentiment = sentiment_labels[int(prediction)]
+
 
         # Get prediction probabilities
         probabilities = model.predict_proba([user_text])[0]
@@ -46,7 +55,7 @@ if st.button("Predict Sentiment", type="primary"):
         confidence = max(probabilities) * 100
 
         # Display result
-        st.success(f"Predicted Sentiment: {prediction}")
+        st.success(f"Predicted Sentiment: {sentiment}")
 
         st.write(f"Prediction Confidence: {confidence:.2f}%")
 
