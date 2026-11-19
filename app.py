@@ -215,18 +215,134 @@ with right:
             "to see the sentiment prediction."
         )
 
+
 # --------------------------------
-# 6. FOOTER
+# 6. BATCH SENTIMENT ANALYSIS
 # --------------------------------
+
+import pandas as pd
+from io import BytesIO
 
 st.divider()
+st.markdown("## 📁 Batch Sentiment Analysis")
 
-st.markdown(
-    """
-    <div class="footer">
-        BanglaAI | Bangla Sentiment Intelligence<br>
-        Powered by TF-IDF + Logistic Regression
-    </div>
-    """,
-    unsafe_allow_html=True
+st.write(
+    "Upload a CSV or Excel file containing Bangla "
+    "customer reviews to analyze multiple texts at once."
 )
+
+uploaded_file = st.file_uploader(
+    "Upload your review dataset",
+    type=["csv", "xlsx"]
+)
+
+if uploaded_file is not None:
+
+    try:
+        # Read uploaded file
+        if uploaded_file.name.lower().endswith(".csv"):
+            try:
+                df = pd.read_csv(uploaded_file)
+            except UnicodeDecodeError:
+                uploaded_file.seek(0)
+                df = pd.read_csv(
+                    uploaded_file,
+                    encoding="utf-8-sig"
+                )
+        else:
+            df = pd.read_excel(uploaded_file)
+
+        st.write("### Dataset Preview")
+        st.dataframe(df.head(), use_container_width=True)
+
+        # Let user choose the review column
+        text_column = st.selectbox(
+            "Select the column containing Bangla reviews",
+            options=df.columns.tolist()
+        )
+
+        if st.button(
+            "Analyze All Reviews",
+            type="primary",
+            use_container_width=True
+        ):
+
+            # Keep rows with non-empty text
+            results = df.copy()
+            results = results.dropna(
+                subset=[text_column]
+            )
+
+            results[text_column] = (
+                results[text_column].astype(str).str.strip()
+            )
+
+            results = results[
+                results[text_column] != ""
+            ].copy()
+
+            if results.empty:
+                st.warning("No valid reviews found.")
+
+            else:
+                # Predict all reviews
+                predictions = model.predict(
+                    results[text_column].tolist()
+                )
+
+                # Convert numeric labels
+                results["Predicted_Sentiment"] = [
+                    sentiment_labels[int(p)]
+                    for p in predictions
+                ]
+
+                # Display summary
+                st.success(
+                    f"Successfully analyzed {len(results)} reviews!"
+                )
+
+                counts = results[
+                    "Predicted_Sentiment"
+                ].value_counts()
+
+                c1, c2, c3 = st.columns(3)
+
+                c1.metric(
+                    "Positive",
+                    int(counts.get("Positive", 0))
+                )
+
+                c2.metric(
+                    "Negative",
+                    int(counts.get("Negative", 0))
+                )
+
+                c3.metric(
+                    "Neutral",
+                    int(counts.get("Neutral", 0))
+                )
+
+                st.subheader("Sentiment Distribution")
+                st.bar_chart(counts)
+
+                st.subheader("Analysis Results")
+                st.dataframe(
+                    results,
+                    use_container_width=True
+                )
+
+                # Download CSV
+                csv_data = results.to_csv(
+                    index=False
+                ).encode("utf-8-sig")
+
+                st.download_button(
+                    "Download Results (CSV)",
+                    data=csv_data,
+                    file_name="banglaai_results.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+
+    except Exception as e:
+        st.error(f"Unable to process file: {e}")
