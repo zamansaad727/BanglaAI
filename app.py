@@ -87,7 +87,7 @@ button[data-baseweb="tab"] {font-weight:700;font-size:15px;border-radius:12px 12
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""<div class="hero"><div class="eyebrow">Bangla Sentiment Intelligence</div><h1 style="color:#FFFFFF;">বাংলা<span>AI</span></h1><div class="tagline">Rooted in Bangla. Built for the World.</div><div class="description">Understand the sentiment behind Bangla text. From a single opinion to hundreds of customer reviews, turn feedback into clearer insights.</div><div class="mini-pill">✦ TF-IDF &nbsp; · &nbsp; Logistic Regression &nbsp; · &nbsp; Bangla NLP</div></div>""", unsafe_allow_html=True)
+st.markdown("""<div class="hero"><div class="eyebrow">Bangla Sentiment Intelligence</div><span style="color:#FFFFFF;">বাংলা</span><span style="color:#E8B86D;">AI</span></h1><div class="tagline">Rooted in Bangla. Built for the World.</div><div class="description">Understand the sentiment behind Bangla text. From a single opinion to hundreds of customer reviews, turn feedback into clearer insights.</div><div class="mini-pill">✦ TF-IDF &nbsp; · &nbsp; Logistic Regression &nbsp; · &nbsp; Bangla NLP</div></div>""", unsafe_allow_html=True)
 
 tab_single, tab_batch, tab_about = st.tabs(["✍️ Single Analysis", "📁 Batch Analysis", "ℹ️ About"])
 
