@@ -2,75 +2,231 @@
 import streamlit as st
 import joblib
 
-# Page configuration
+# --------------------------------
+# 1. PAGE CONFIGURATION
+# --------------------------------
+
 st.set_page_config(
-    page_title="BanglaAI",
-    page_icon="🇧🇩",
-    layout="centered"
+    page_title="BanglaAI | Sentiment Intelligence",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
-# Load trained model
-model = joblib.load("bangla_sentiment_final.joblib")
+# --------------------------------
+# 2. LOAD TRAINED MODEL
+# --------------------------------
 
-# Sentiment label mapping
+@st.cache_resource
+def load_model():
+    return joblib.load("bangla_sentiment_final.joblib")
+
+model = load_model()
+
 sentiment_labels = {
     0: "Neutral",
     1: "Positive",
     2: "Negative"
 }
 
-# Main heading
-st.title("🇧🇩 BanglaAI")
-st.subheader("Bangla Text Sentiment Classification System")
+# --------------------------------
+# 3. CUSTOM CSS
+# --------------------------------
 
-st.write(
-    "Enter a Bangla sentence to predict whether "
-    "its sentiment is Positive, Negative, or Neutral."
+st.markdown("""
+<style>
+.block-container {
+    max-width: 1150px;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+.hero {
+    background: linear-gradient(
+        120deg, #102B32, #155D57
+    );
+    border-radius: 22px;
+    padding: 42px;
+    color: white;
+    margin-bottom: 30px;
+}
+
+.hero h1 {
+    color: white;
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    color: #D6EAE5;
+    font-size: 17px;
+}
+
+.brand-accent {
+    color: #E8B86D;
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 750;
+    color: #102B32;
+    margin-top: 15px;
+    margin-bottom: 12px;
+}
+
+.result-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8E5;
+    border-radius: 18px;
+    padding: 25px;
+    margin-top: 15px;
+}
+
+.footer {
+    text-align: center;
+    color: #64748B;
+    padding-top: 25px;
+    font-size: 13px;
+}
+
+div.stButton > button {
+    border-radius: 10px;
+    font-weight: 650;
+    padding: 0.65rem 1.5rem;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# --------------------------------
+# 4. HERO SECTION
+# --------------------------------
+
+st.markdown("""
+<div class="hero">
+    <h1>বাংলা<span class="brand-accent">AI</span></h1>
+    <p><strong>Rooted in Bangla. Built for the World.</strong></p>
+    <p>
+        Discover the sentiment behind Bangla text.
+        From individual opinions to meaningful insights,
+        powered by Machine Learning.
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
+# --------------------------------
+# 5. MAIN INTERFACE
+# --------------------------------
+
+st.markdown(
+    '<div class="section-title">Sentiment Studio</div>',
+    unsafe_allow_html=True
 )
 
-# User input
-user_text = st.text_area(
-    "Enter Bangla Text:",
-    placeholder="উদাহরণ: আজকের দিনটি খুব সুন্দর।",
-    height=130
+st.caption(
+    "Analyze Bangla customer reviews, feedback, "
+    "comments, and opinions."
 )
 
-# Prediction button
-if st.button("Predict Sentiment", type="primary"):
+left, right = st.columns([1.15, 1], gap="large")
 
-    if user_text.strip():
+with left:
 
-        # Predict sentiment
-        prediction = model.predict([user_text])[0]
+    st.subheader("✍️ Single Text Analysis")
 
-        # Convert numeric prediction to label
-        sentiment = sentiment_labels[int(prediction)]
+    user_text = st.text_area(
+        "Enter your Bangla text",
+        placeholder="এই পণ্যটির মান খুব ভালো। আমি সন্তুষ্ট।",
+        height=180
+    )
 
-        # Calculate class probabilities
-        probabilities = model.predict_proba([user_text])[0]
+    analyze = st.button(
+        "Analyze Sentiment",
+        type="primary",
+        use_container_width=True
+    )
 
-        confidence = max(probabilities) * 100
+with right:
 
-        # Display prediction
-        st.success(f"Predicted Sentiment: {sentiment}")
+    st.subheader("📊 Analysis Result")
 
-        st.write(f"Model Confidence: {confidence:.2f}%")
+    if analyze:
 
-        # Display class probabilities
-        st.subheader("Class Probabilities")
+        if user_text.strip():
 
-        for label, probability in zip(
-            model.classes_, probabilities
-        ):
-            class_name = sentiment_labels[int(label)]
+            prediction = model.predict([user_text])[0]
 
-            st.write(
-                f"{class_name}: {probability * 100:.2f}%"
+            probabilities = model.predict_proba(
+                [user_text]
+            )[0]
+
+            sentiment = sentiment_labels[int(prediction)]
+
+            confidence = max(probabilities) * 100
+
+            # Sentiment colors
+            colors = {
+                "Positive": "#087F65",
+                "Negative": "#D94F4F",
+                "Neutral": "#C18A24"
+            }
+
+            selected_color = colors[sentiment]
+
+            st.markdown(
+                f"""
+                <div class="result-card">
+                    <p style="color:#64748B;">
+                        Predicted Sentiment
+                    </p>
+                    <h2 style="color:{selected_color};">
+                        {sentiment}
+                    </h2>
+                    <p>
+                        Model Confidence:
+                        <strong>{confidence:.2f}%</strong>
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
 
-    else:
-        st.warning("Please enter some Bangla text first.")
+            st.markdown("#### Class Probabilities")
 
-# Footer
+            for label, probability in zip(
+                model.classes_, probabilities
+            ):
+
+                class_name = sentiment_labels[int(label)]
+
+                st.write(
+                    f"{class_name}: {probability * 100:.2f}%"
+                )
+
+                st.progress(float(probability))
+
+        else:
+            st.warning("Please enter Bangla text first.")
+
+    else:
+        st.info(
+            "Enter Bangla text and click Analyze "
+            "to see the sentiment prediction."
+        )
+
+# --------------------------------
+# 6. FOOTER
+# --------------------------------
+
 st.divider()
-st.caption("BanglaAI | A Machine Learning Project")
+
+st.markdown(
+    """
+    <div class="footer">
+        BanglaAI | Bangla Sentiment Intelligence<br>
+        Powered by TF-IDF + Logistic Regression
+    </div>
+    """,
+    unsafe_allow_html=True
+)
